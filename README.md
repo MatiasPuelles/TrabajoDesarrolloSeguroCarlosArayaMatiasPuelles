@@ -1,2 +1,3 @@
-# TrabajoDesarrolloSeguroCarlosArayaMatiasPuelles
+# TrabajoDesarrolloSeguro
+CarlosArayaMatiasPuelles
 evaluacion 2
