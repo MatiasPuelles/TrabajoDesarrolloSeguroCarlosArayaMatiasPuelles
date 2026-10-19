@@ -2,7 +2,8 @@
 # Date: 2020-11-05 00:16:07
 # Generator: MySQL-Front 6.0  (Build 2.20)
 
-CREATE DATABASE `pnk_security` DEFAULT CHARACTER SET latin1 COLLATE latin1_spanish_ci;
+CREATE DATABASE IF NOT EXISTS `pnk_security` DEFAULT CHARACTER SET utf8 COLLATE utf8_spanish_ci;
+USE `pnk_security`;
 
 #
 # Structure for table "cartas"
@@ -167,4 +168,33 @@ CREATE TABLE `usuarios` (
 # Data for table "usuarios"
 #
 
-INSERT INTO `usuarios` VALUES (1,'Administrador','admin@gmail.com','admin01','1'),(2,'Alondra','alondra@gmail.com','alondra01','1');
+# VUL-003: las contraseñas se almacenan como hash bcrypt (password_hash), nunca en texto plano.
+# Cambie estas credenciales de laboratorio antes de usar el sistema fuera de un entorno de pruebas.
+INSERT INTO `usuarios` VALUES (1,'Administrador','admin@gmail.com','$2y$10$htvz02BUx2MbKvGTml6eTuISVvRq8VF2yteGgCSm3uYx9W1BJbHnm','1'),(2,'Alondra','alondra@gmail.com','$2y$10$g8gxysJ9DACIN0dui7qoFutLJ9DgpzAeg6Ono1xVqCe9bTiMzHDye','1');
+
+#
+# Structure for table "login_intentos" (control anti fuerza bruta)
+#
+
+DROP TABLE IF EXISTS `login_intentos`;
+CREATE TABLE `login_intentos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) DEFAULT NULL,
+  `ip` varchar(45) DEFAULT NULL,
+  `exitoso` tinyint(1) NOT NULL DEFAULT '0',
+  `fecha` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_email_fecha` (`email`,`fecha`),
+  KEY `idx_ip_fecha` (`ip`,`fecha`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#
+# Usuario de aplicación con mínimo privilegio (VUL-006): no usar root.
+# Descomente y defina una clave robusta propia:
+#
+# CREATE USER 'pnk_app'@'localhost' IDENTIFIED BY '<CLAVE_ROBUSTA>';
+# GRANT SELECT ON pnk_security.* TO 'pnk_app'@'localhost';
+# GRANT INSERT ON pnk_security.comentarios TO 'pnk_app'@'localhost';
+# GRANT INSERT, SELECT ON pnk_security.login_intentos TO 'pnk_app'@'localhost';
+# GRANT UPDATE (password) ON pnk_security.usuarios TO 'pnk_app'@'localhost';
+
